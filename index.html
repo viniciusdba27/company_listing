@@ -87,52 +87,61 @@
 
         render: function() {
           const companies_component = [];
-          const favorite_companies = [];
+          let favorite_companies = [];
+          let favorite_companies_array = [];
 
+          // builds the company listing entries
           this.companies.forEach(function (company, index) {
             const component = <CompanyRow company={company} updateCompany={this.updateCompany} key={index}/>
             companies_component.push(component)
+          }.bind(this));
 
+          // builds the favorite company listing entries
+          favorite_companies_array = this.companies.sort(this.dynamicSort("name"));
+
+          favorite_companies_array.forEach(function (company, index) {
             if(company.favorite) {
               const favorite_component = <FavoriteCompanyRow company={company} updateCompany={this.updateCompany} key={index}/>
               favorite_companies.push(favorite_component);
             }
           }.bind(this));
 
+          //check if the is no favorite company
           if(favorite_companies.length < 1) {
             favorite_companies.push(<p> There is no favorite company</p>)
           }
 
+          //builds the name sorting arrow
           let name_sort_component = null;
           if(this.state.name_sort) {
-            name_sort_component = <span className={`col-sm-1 glyphicon glyphicon-chevron-${this.state.name_sort}`}></span>;
+            name_sort_component = <span className={`col-xs-1 glyphicon glyphicon-chevron-${this.state.name_sort}`}></span>;
           }
 
+          //builds the employee sorting arrow
           let employee_sort_component = null;
           if(this.state.employee_sort) {
-            employee_sort_component = <span className={`col-sm-1 glyphicon glyphicon-chevron-${this.state.employee_sort}`}></span>;
+            employee_sort_component = <span className={`col-xs-1 glyphicon glyphicon-chevron-${this.state.employee_sort}`}></span>;
           }
-
 
           return (
             <div>
               <div className="header">
-                <h1>Company Listing</h1>
+                <h4>Company Listing</h4>
               </div>
 
               <div className="company-listing">
                 <div className="row">
-                  <p className="col-sm-4"> Favorite </p>
-                  <div className="col-sm-4">
+                  <p className="col-xs-4"> Favorite </p>
+                  <div className="col-xs-4">
                     <div className="row">
-                      <a href="#" className="col-sm-6" onClick={this.nameSort}>  Company Name </a>
+                      <a href="#" className="col-xs-6" onClick={this.nameSort}>  Company Name </a>
                       { name_sort_component }
                     </div>
                   </div>
 
-                  <div className="col-sm-4">
+                  <div className="col-xs-4">
                     <div className="row">
-                       <a href="#" className="col-sm-6" onClick={this.nameSort}> Number of employees </a>
+                       <a href="#" className="col-xs-6" onClick={this.employeeSort}> Number of employees </a>
                       { employee_sort_component }
                     </div>
                   </div>
@@ -143,21 +152,19 @@
               </div>
 
               <div className="header">
-                <h1>My Favorites Companies</h1>
+                <h4>My Favorite Companies</h4>
               </div>
 
               <div className="company-listing__favorites">
                 <div className="row">
-                  <p className="col-sm-4"> Company Name </p>
-                  <p className="col-sm-4"> Number of employees </p>
-                  <p className="col-sm-4"> Action </p>
+                  <p className="col-xs-4"> Company Name </p>
+                  <p className="col-xs-4"> Number of employees </p>
+                  <p className="col-xs-4"> Action </p>
                 </div>
 
                 { favorite_companies }
 
               </div>
-
-
             </div>
           )
         }
@@ -176,9 +183,9 @@
         render: function() {
           return(
             <div className="company-row row">
-              <span className="col-sm-4"><input type="checkbox" checked={this.props.company.favorite} onClick={this.updateCompany} /></span>
-              <p className="col-sm-4"> { this.props.company.name } </p>
-              <p className="col-sm-4"> { this.props.company.employees_count} </p>
+              <span className="col-xs-4"><input type="checkbox" checked={this.props.company.favorite} onClick={this.updateCompany} /></span>
+              <p className="col-xs-4"> { this.props.company.name } </p>
+              <p className="col-xs-4"> { this.props.company.employees_count} </p>
             </div>
           );
         }
@@ -196,9 +203,9 @@
         render: function() {
           return(
             <div className="company-row row">
-              <p className="col-sm-4"> { this.props.company.name } </p>
-              <p className="col-sm-4"> { this.props.company.employees_count} </p>
-              <a className="col-sm-4" href="#" onClick={this.updateCompany}>Remove</a>
+              <p className="col-xs-4"> { this.props.company.name } </p>
+              <p className="col-xs-4"> { this.props.company.employees_count} </p>
+              <a className="col-xs-4" href="#" onClick={this.updateCompany}>Remove</a>
             </div>
           );
         }
