@@ -23,10 +23,45 @@
     <script type="text/babel">
 
       var Index = React.createClass({
+        companies: [{id: 0, name: "ACME", employees_count: 5, favorite: false}, {id: 0, name: "Apple", employees_count: 15, favorite: true}],
         render: function() {
+          const companies_component = []
+
+          this.companies.forEach(function (company, index) {
+            companies_component.push(<CompanyRow company={company} key={index}/>)
+          })
+
           return (
-            <p>Company Listing</p>
+            <div>
+              <div className="header">
+                <h1>Company Listing</h1>
+              </div>
+
+              <div className="company-listing">
+                <div className="row">
+                  <p className="col-md-4"> Favorite </p>
+                  <p className="col-md-4"> Company Name </p>
+                  <p className="col-md-4"> Number of employees </p>
+                </div>
+
+                { companies_component }
+
+              </div>
+
+            </div>
           )
+        }
+      });
+
+      var CompanyRow = React.createClass({
+        render: function() {
+          return(
+            <div className="company-row row">
+              <span className="col-md-4"><input type="checkbox" checked={this.props.company.favorite} /></span>
+              <p className="col-md-4"> { this.props.company.name } </p>
+              <p className="col-md-4"> { this.props.company.employees_count} </p>
+            </div>
+          );
         }
       });
 
