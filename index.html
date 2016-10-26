@@ -23,13 +23,96 @@
     <script type="text/babel">
 
       var Index = React.createClass({
-        companies: [{id: 0, name: "ACME", employees_count: 5, favorite: false}, {id: 0, name: "Apple", employees_count: 15, favorite: true}],
+        companies: [{id: 0, name: "ACME", employees_count: 5, favorite: false}, {id: 1, name: "Zapple", employees_count: 15, favorite: true}, {id: 2, name: "Bord", employees_count: 25, favorite: false}],
+
+        getInitialState() {
+          return {
+            reoload_page: false,
+            name_sort: "down",
+            employee_sort: null,
+          };
+        },
+
+        dynamicSort: function(property) {
+          var sortOrder = 1;
+          if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+          }
+          return function (a,b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+          }
+        },
+
+        nameSort: function() {
+          var reverse = "";
+          this.setState({employee_sort: null});
+
+          if(this.state.name_sort == "down") {
+            this.setState({name_sort: "up"})
+            reverse = "-"
+          } else {
+            this.setState({name_sort: "down"})
+          }
+
+          this.companies = this.companies.sort(this.dynamicSort(`${reverse}name`));
+          this.setState({ reoload_page: !this.state.reoload_page });
+        },
+
+        employeeSort: function() {
+          var reverse = "";
+          this.setState({name_sort: null});
+
+          if(this.state.employee_sort == "down") {
+            this.setState({employee_sort: "up"})
+            reverse = "-"
+          } else {
+            this.setState({employee_sort: "down"})
+          }
+
+          this.companies = this.companies.sort(this.dynamicSort(`${reverse}employees_count`));
+          this.setState({ reoload_page: !this.state.reoload_page });
+        },
+
+        updateCompany: function(company) {
+          for (var i in this.companies) {
+             if (this.companies[i].id == company.id) {
+                this.companies[i].favorite = company.favorite;
+             }
+             break;
+          }
+          this.setState({ reoload_page: !this.state.reoload_page })
+        },
+
         render: function() {
-          const companies_component = []
+          const companies_component = [];
+          const favorite_companies = [];
 
           this.companies.forEach(function (company, index) {
-            companies_component.push(<CompanyRow company={company} key={index}/>)
-          })
+            const component = <CompanyRow company={company} updateCompany={this.updateCompany} key={index}/>
+            companies_component.push(component)
+
+            if(company.favorite) {
+              const favorite_component = <FavoriteCompanyRow company={company} updateCompany={this.updateCompany} key={index}/>
+              favorite_companies.push(favorite_component);
+            }
+          }.bind(this));
+
+          if(favorite_companies.length < 1) {
+            favorite_companies.push(<p> There is no favorite company</p>)
+          }
+
+          let name_sort_component = null;
+          if(this.state.name_sort) {
+            name_sort_component = <span className={`col-sm-1 glyphicon glyphicon-chevron-${this.state.name_sort}`}></span>;
+          }
+
+          let employee_sort_component = null;
+          if(this.state.employee_sort) {
+            employee_sort_component = <span className={`col-sm-1 glyphicon glyphicon-chevron-${this.state.employee_sort}`}></span>;
+          }
+
 
           return (
             <div>
@@ -39,14 +122,41 @@
 
               <div className="company-listing">
                 <div className="row">
-                  <p className="col-md-4"> Favorite </p>
-                  <p className="col-md-4"> Company Name </p>
-                  <p className="col-md-4"> Number of employees </p>
+                  <p className="col-sm-4"> Favorite </p>
+                  <div className="col-sm-4">
+                    <div className="row">
+                      <a href="#" className="col-sm-6" onClick={this.nameSort}>  Company Name </a>
+                      { name_sort_component }
+                    </div>
+                  </div>
+
+                  <div className="col-sm-4">
+                    <div className="row">
+                       <a href="#" className="col-sm-6" onClick={this.nameSort}> Number of employees </a>
+                      { employee_sort_component }
+                    </div>
+                  </div>
                 </div>
 
                 { companies_component }
 
               </div>
+
+              <div className="header">
+                <h1>My Favorites Companies</h1>
+              </div>
+
+              <div className="company-listing__favorites">
+                <div className="row">
+                  <p className="col-sm-4"> Company Name </p>
+                  <p className="col-sm-4"> Number of employees </p>
+                  <p className="col-sm-4"> Action </p>
+                </div>
+
+                { favorite_companies }
+
+              </div>
+
 
             </div>
           )
@@ -54,12 +164,41 @@
       });
 
       var CompanyRow = React.createClass({
+
+        updateCompany: function(e) {
+          if(this.props.updateCompany) {
+           const obj = this.props.company;
+           obj.favorite = e.target.checked;
+           this.props.updateCompany(obj);
+          }
+        },
+
         render: function() {
           return(
             <div className="company-row row">
-              <span className="col-md-4"><input type="checkbox" checked={this.props.company.favorite} /></span>
-              <p className="col-md-4"> { this.props.company.name } </p>
-              <p className="col-md-4"> { this.props.company.employees_count} </p>
+              <span className="col-sm-4"><input type="checkbox" checked={this.props.company.favorite} onClick={this.updateCompany} /></span>
+              <p className="col-sm-4"> { this.props.company.name } </p>
+              <p className="col-sm-4"> { this.props.company.employees_count} </p>
+            </div>
+          );
+        }
+      });
+
+      var FavoriteCompanyRow = React.createClass({
+        updateCompany: function() {
+          if(this.props.updateCompany) {
+           const obj = this.props.company;
+           obj.favorite = false
+           this.props.updateCompany(obj);
+          }
+        },
+
+        render: function() {
+          return(
+            <div className="company-row row">
+              <p className="col-sm-4"> { this.props.company.name } </p>
+              <p className="col-sm-4"> { this.props.company.employees_count} </p>
+              <a className="col-sm-4" href="#" onClick={this.updateCompany}>Remove</a>
             </div>
           );
         }
