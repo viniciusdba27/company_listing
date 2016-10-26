@@ -23,12 +23,18 @@
     <script type="text/babel">
 
       var Index = React.createClass({
-        companies: [{id: 0, name: "ACME", employees_count: 5, favorite: false}, {id: 1, name: "Zapple", employees_count: 15, favorite: true}, {id: 2, name: "Bord", employees_count: 25, favorite: false}],
+        companies: [  {id: 0, name: "ACME", employees_count: 227, favorite: false},
+                      {id: 1, name: "Bosh", employees_count: 115, favorite: false},
+                      {id: 2, name: "Petrobras", employees_count: 521, favorite: false},
+                      {id: 3, name: "Ferrari", employees_count: 6525, favorite: false},
+                      {id: 4, name: "Chevron", employees_count: 853, favorite: false},
+                      {id: 5, name: "Warner", employees_count: 725, favorite: false},
+                      {id: 6, name: "Dome Corp.", employees_count: 1, favorite: false}],
 
         getInitialState() {
           return {
             reoload_page: false,
-            name_sort: "down",
+            name_sort: null,
             employee_sort: null,
           };
         },
@@ -88,7 +94,12 @@
         render: function() {
           const companies_component = [];
           let favorite_companies = [];
-          let favorite_companies_array = [];
+          let favorite_companies_array = []
+
+          // creates a brand new array to dont mess up the original one
+          this.companies.forEach(function (company, index) {
+            favorite_companies_array.push(company);
+          })
 
           // builds the company listing entries
           this.companies.forEach(function (company, index) {
@@ -97,11 +108,10 @@
           }.bind(this));
 
           // builds the favorite company listing entries
-          favorite_companies_array = this.companies.sort(this.dynamicSort("name"));
-
+          favorite_companies_array = favorite_companies_array.sort(this.dynamicSort("name"));
           favorite_companies_array.forEach(function (company, index) {
             if(company.favorite) {
-              const favorite_component = <FavoriteCompanyRow company={company} updateCompany={this.updateCompany} key={index}/>
+              const favorite_component = <FavoriteCompanyRow company={company} updateCompany={this.updateCompany} key={`fav-${index}`}/>
               favorite_companies.push(favorite_component);
             }
           }.bind(this));
